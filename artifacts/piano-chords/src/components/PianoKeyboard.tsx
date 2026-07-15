@@ -2,11 +2,11 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface PianoKeyboardProps {
-  activeNotes: string[]; // e.g. ['C', 'E', 'G']
+  activeNotes: string[];
+  compact?: boolean;
 }
 
-export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
-  // We map notes to keys.
+export function PianoKeyboard({ activeNotes, compact = false }: PianoKeyboardProps) {
   const whiteKeys = [
     { note: 'C', label: 'C' },
     { note: 'D', label: 'D' },
@@ -15,7 +15,7 @@ export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
     { note: 'G', label: 'G' },
     { note: 'A', label: 'A' },
     { note: 'B', label: 'B' },
-    { note: 'C', label: 'C', isHigh: true }, // C4
+    { note: 'C', label: 'C', isHigh: true },
   ];
 
   const blackKeys = [
@@ -29,17 +29,20 @@ export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
   const isNoteActive = (note: string) => activeNotes.includes(note);
 
   return (
-    <div className="relative w-full max-w-3xl mx-auto h-48 md:h-64 rounded-b-xl shadow-2xl bg-[#1a1512] p-2 pt-0 select-none">
+    <div className={cn(
+      "relative w-full rounded-b-xl shadow-2xl bg-[#1a1512] p-2 pt-0 select-none",
+      compact ? "h-28" : "h-48 md:h-64 max-w-3xl mx-auto"
+    )}>
       <div className="relative w-full h-full flex rounded-b-lg overflow-hidden">
         {whiteKeys.map((key, i) => (
           <div
             key={`white-${i}`}
             className={cn(
-              "relative h-full border border-black/20 rounded-b-md transition-all duration-150 ease-out flex items-end justify-center pb-4",
+              "relative h-full border border-black/20 rounded-b-md transition-all duration-150 ease-out flex items-end justify-center w-[12.5%]",
+              compact ? "pb-1" : "pb-4",
               isNoteActive(key.note)
                 ? "bg-amber-400 shadow-[inset_0_-4px_12px_rgba(217,119,6,0.6)] text-amber-900 translate-y-1"
-                : "bg-[#fffff8] shadow-[inset_0_-4px_8px_rgba(0,0,0,0.1)] text-black/40 hover:bg-[#f4f4ea]",
-              "w-[12.5%]"
+                : "bg-[#fffff8] shadow-[inset_0_-4px_8px_rgba(0,0,0,0.1)] text-black/40 hover:bg-[#f4f4ea]"
             )}
             style={{
               transformOrigin: 'top',
@@ -47,7 +50,8 @@ export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
             }}
           >
             <span className={cn(
-              "font-medium text-sm transition-opacity duration-300",
+              "font-medium transition-opacity duration-300",
+              compact ? "text-[9px]" : "text-sm",
               isNoteActive(key.note) ? "opacity-100" : "opacity-0"
             )}>
               {key.label}
@@ -61,7 +65,8 @@ export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
             <div
               key={`black-${i}`}
               className={cn(
-                "absolute top-0 h-[65%] w-[calc(100%/14)] rounded-b-md z-10 transition-all duration-150 ease-out border-x border-b border-black flex items-end justify-center pb-3",
+                "absolute top-0 h-[65%] w-[calc(100%/14)] rounded-b-md z-10 transition-all duration-150 ease-out border-x border-b border-black flex items-end justify-center",
+                compact ? "pb-1" : "pb-3",
                 isNoteActive(key.note)
                   ? "bg-amber-500 shadow-[inset_0_-2px_8px_rgba(251,191,36,0.6),0_4px_8px_rgba(0,0,0,0.5)] text-amber-950 translate-y-1"
                   : "bg-[#18181b] shadow-[inset_-2px_-4px_6px_rgba(255,255,255,0.1),0_4px_8px_rgba(0,0,0,0.5)] text-white/40 hover:bg-[#27272a]"
@@ -73,7 +78,8 @@ export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
               }}
             >
               <span className={cn(
-                "font-medium text-xs transition-opacity duration-300",
+                "font-medium transition-opacity duration-300",
+                compact ? "text-[7px]" : "text-xs",
                 isNoteActive(key.note) ? "opacity-100" : "opacity-0"
               )}>
                 {key.label}
@@ -83,7 +89,7 @@ export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
         })}
       </div>
       {/* Decorative top wooden strip */}
-      <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-[#2a1b14] to-[#1a1512] shadow-md z-20"></div>
+      <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-[#2a1b14] to-[#1a1512] shadow-md z-20"></div>
     </div>
   );
 }

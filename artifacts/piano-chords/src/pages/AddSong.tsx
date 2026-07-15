@@ -1,22 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useCreateSong, getListSongsQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { parseChords } from '@/lib/chords';
+import { cn } from '@/lib/utils';
 
 export default function AddSong() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
-  const [chordText, setChordText] = useState('');
-  
+  const [rawText, setRawText] = useState('');
+  const [selectedChords, setSelectedChords] = useState<Set<string>>(new Set());
+
   const createSong = useCreateSong();
-  
+
+  // Re-parse whenever raw text changes; auto-select all detected chords
+  useEffect(() => {
+    const detected = parseChords(rawText);
+    setSelectedChords(new Set(detected));
+  }, [rawText]);
+
+  const detectedChords = parseChords(rawText);
+
+  const toggleChord = (chord: string) => {
+    setSelectedChords(prev => {
+      const next = new Set(prev);
+      if (next.has(chord)) {
+        next.delete(chord);
+      } else {
+        next.add(chord);
+      }
+      return next;
+    });
+  };
+
   const handleSave = () => {
-    if (!title.trim() || !chordText.trim()) return;
-    
+    const chordText = detectedChords.filter(c => selectedChords.has(c)).join(' ');
+    if (!title.trim() || !chordText) return;
+
     createSong.mutate(
       { data: { title, artist, chordText } },
       {
@@ -28,7 +51,8 @@ export default function AddSong() {
     );
   };
 
-  const detectedChords = parseChords(chordText);
+  const activeChords = detectedChords.filter(c => selectedChords.has(c));
+  const canSave = title.trim() && activeChords.length > 0;
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground p-6 md:p-12 font-sans">
@@ -37,18 +61,18 @@ export default function AddSong() {
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Library</span>
         </Link>
-        
+
         <header>
           <h1 className="text-4xl font-serif text-amber-50 tracking-tight mb-2">New Piece</h1>
-          <p className="text-muted-foreground font-light">Add the chords for a song you want to practice.</p>
+          <p className="text-muted-foreground font-light">Paste in chords or a full chord/lyric sheet. Then pick which chords to learn.</p>
         </header>
 
         <div className="space-y-6 bg-card p-6 md:p-8 rounded-2xl border border-border">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-amber-50/80">Title</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 className="w-full bg-black/40 border border-border rounded-md h-11 px-4 text-amber-50 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
@@ -57,8 +81,8 @@ export default function AddSong() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-amber-50/80">Artist <span className="text-muted-foreground font-normal">(Optional)</span></label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={artist}
                 onChange={e => setArtist(e.target.value)}
                 className="w-full bg-black/40 border border-border rounded-md h-11 px-4 text-amber-50 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
@@ -66,35 +90,72 @@ export default function AddSong() {
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
-            <label className="text-sm font-medium text-amber-50/80">Chord Progression</label>
-            <textarea 
-              value={chordText}
-              onChange={e => setChordText(e.target.value)}
-              className="w-full bg-black/40 border border-border rounded-md p-4 text-amber-50 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all min-h-[200px] resize-y font-mono text-sm leading-relaxed"
-              placeholder="Am F C G&#10;Am F C E&#10;&#10;Verse 1:&#10;Am - C - G - F"
+            <label className="text-sm font-medium text-amber-50/80">Chords &amp; Lyrics</label>
+            <p className="text-xs text-muted-foreground">Paste anything — a chord-only list, a full lyric sheet with chords above lines, or chord charts from any site.</p>
+            <textarea
+              value={rawText}
+              onChange={e => setRawText(e.target.value)}
+              className="w-full bg-black/40 border border-border rounded-md p-4 text-amber-50 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all min-h-[220px] resize-y font-mono text-sm leading-relaxed"
+              placeholder={`Am          F           C    G\nAll the kids are singing it again\n\nAm          F           C    E\nSomething about the end of the world`}
             />
           </div>
 
           {detectedChords.length > 0 && (
-            <div className="pt-4 border-t border-border/50">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Detected Chords</p>
-              <div className="flex flex-wrap gap-2">
-                {detectedChords.map((chord, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-primary/10 text-primary text-sm rounded-md border border-primary/20 font-medium">
-                    {chord}
-                  </span>
-                ))}
+            <div className="pt-4 border-t border-border/50 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Detected Chords — tap to include or exclude
+                </p>
+                <div className="flex gap-3 text-xs">
+                  <button
+                    onClick={() => setSelectedChords(new Set(detectedChords))}
+                    className="text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Select all
+                  </button>
+                  <span className="text-border">|</span>
+                  <button
+                    onClick={() => setSelectedChords(new Set())}
+                    className="text-muted-foreground hover:text-amber-50/60 transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
+              <div className="flex flex-wrap gap-2">
+                {detectedChords.map((chord) => {
+                  const isSelected = selectedChords.has(chord);
+                  return (
+                    <button
+                      key={chord}
+                      onClick={() => toggleChord(chord)}
+                      className={cn(
+                        "px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-150 active:scale-95",
+                        isSelected
+                          ? "bg-primary/20 text-primary border-primary/50 shadow-[0_0_12px_rgba(217,119,6,0.15)]"
+                          : "bg-black/20 text-muted-foreground border-border/40 hover:border-border hover:text-amber-50/60 line-through decoration-muted-foreground/40"
+                      )}
+                    >
+                      {chord}
+                    </button>
+                  );
+                })}
+              </div>
+              {activeChords.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {activeChords.length} chord{activeChords.length !== 1 ? 's' : ''} will be saved: <span className="text-amber-50/60">{activeChords.join(', ')}</span>
+                </p>
+              )}
             </div>
           )}
         </div>
 
         <div className="flex justify-end">
-          <button 
+          <button
             onClick={handleSave}
-            disabled={!title.trim() || !chordText.trim() || createSong.isPending}
+            disabled={!canSave || createSong.isPending}
             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-11 px-8 gap-2"
           >
             {createSong.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
