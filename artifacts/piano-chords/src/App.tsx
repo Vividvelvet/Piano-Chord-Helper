@@ -6,6 +6,7 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 
 import Home from './pages/Home';
 import AddSong from './pages/AddSong';
+import EditSong from './pages/EditSong';
 import SongView from './pages/SongView';
 
 const queryClient = new QueryClient();
@@ -15,6 +16,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/songs/new" component={AddSong} />
+      <Route path="/songs/:id/edit" component={EditSong} />
       <Route path="/songs/:id" component={SongView} />
       <Route component={NotFound} />
     </Switch>

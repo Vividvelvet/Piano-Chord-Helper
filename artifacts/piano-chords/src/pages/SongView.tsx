@@ -1,7 +1,7 @@
 import { useRoute, Link, useLocation } from 'wouter';
 import { useGetSong, useDeleteSong, getListSongsQueryKey, getGetSongQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Trash2, Loader2, Music } from 'lucide-react';
+import { ArrowLeft, Trash2, Pencil, Loader2, Music } from 'lucide-react';
 import { parseChords, CHORD_MAP, isChordToken, chordToKeyboardNotes } from '@/lib/chords';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 
@@ -89,13 +89,22 @@ export default function SongView() {
             <ArrowLeft className="w-4 h-4" />
             <span>Library</span>
           </Link>
-          <button
-            onClick={handleDelete}
-            className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-md hover:bg-destructive/10"
-            title="Delete song"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <Link
+              href={`/songs/${id}/edit`}
+              className="text-muted-foreground hover:text-amber-50 transition-colors p-2 rounded-md hover:bg-white/5"
+              title="Edit song"
+            >
+              <Pencil className="w-4 h-4" />
+            </Link>
+            <button
+              onClick={handleDelete}
+              className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-md hover:bg-destructive/10"
+              title="Delete song"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Song title */}
