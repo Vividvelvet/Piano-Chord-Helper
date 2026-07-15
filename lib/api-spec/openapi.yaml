@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Piano Chord Learner API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: songs
+    description: Song management
 paths:
   /healthz:
     get:
@@ -24,6 +26,102 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /songs:
+    get:
+      operationId: listSongs
+      tags: [songs]
+      summary: List all songs
+      responses:
+        "200":
+          description: List of songs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Song"
+    post:
+      operationId: createSong
+      tags: [songs]
+      summary: Create a new song
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SongInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+        "400":
+          description: Validation error
+
+  /songs/{id}:
+    get:
+      operationId: getSong
+      tags: [songs]
+      summary: Get a song by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Song
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateSong
+      tags: [songs]
+      summary: Update a song
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SongUpdate"
+      responses:
+        "200":
+          description: Updated song
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteSong
+      tags: [songs]
+      summary: Delete a song
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +132,44 @@ components:
       required:
         - status
 
+    Song:
+      type: object
+      required: [id, title, chordText, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        artist:
+          type: ["string", "null"]
+        chordText:
+          type: string
+          description: Raw chord progression text pasted by the user (e.g. "Am C G F")
+        createdAt:
+          type: string
+          format: date-time
+
+    SongInput:
+      type: object
+      required: [title, chordText]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        artist:
+          type: string
+        chordText:
+          type: string
+          minLength: 1
+
+    SongUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        artist:
+          type: string
+        chordText:
+          type: string
+          minLength: 1

@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Piano Chord Learner"
+version = "1.0.0"
+id = "artifacts/piano-chords"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25142
+
+[services.development]
+run = "pnpm --filter @workspace/piano-chords run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/piano-chords", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/piano-chords/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25142"
+BASE_PATH = "/"

@@ -1,6 +1,6 @@
-# [Project name]
+# Piano Chord Learner
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A personal practice companion for learning piano without sheet music — paste in chord progressions for your favourite songs and see exactly which keys to press.
 
 ## Run & Operate
 
