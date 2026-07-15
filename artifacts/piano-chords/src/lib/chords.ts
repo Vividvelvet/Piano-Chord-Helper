@@ -101,3 +101,32 @@ export function parseChords(text: string): string[] {
 export function isChordToken(token: string): boolean {
   return normaliseChord(token.trim()) !== null;
 }
+
+// --- Octave-aware root-position notes for keyboard display ---
+
+const CHROMATIC = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+/**
+ * Returns note+octave strings for a chord in strict root position,
+ * e.g. G major → ["G3", "B3", "D4"].
+ * Root is always placed in octave 3; each subsequent note is the next
+ * occurrence of that pitch strictly above the previous.
+ */
+export function chordToKeyboardNotes(chordName: string): string[] {
+  const notes = CHORD_MAP[chordName];
+  if (!notes || notes.length === 0) return [];
+
+  let prevAbsolute = -1; // semitones from C0
+  return notes.map((note, i) => {
+    const sharp = FLAT_TO_SHARP[note] ?? note;
+    const semitone = CHROMATIC.indexOf(sharp);
+    if (semitone === -1) return '';
+    // Start root in octave 3
+    let absolute = semitone + (i === 0 ? 3 : 0) * 12;
+    // Ensure strictly ascending
+    while (absolute <= prevAbsolute) absolute += 12;
+    prevAbsolute = absolute;
+    const octave = Math.floor(absolute / 12);
+    return `${sharp}${octave}`;
+  }).filter(Boolean);
+}

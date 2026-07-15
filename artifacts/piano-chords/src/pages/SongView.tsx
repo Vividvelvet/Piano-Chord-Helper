@@ -2,7 +2,7 @@ import { useRoute, Link, useLocation } from 'wouter';
 import { useGetSong, useDeleteSong, getListSongsQueryKey, getGetSongQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Trash2, Loader2, Music } from 'lucide-react';
-import { parseChords, CHORD_MAP, isChordToken } from '@/lib/chords';
+import { parseChords, CHORD_MAP, isChordToken, chordToKeyboardNotes } from '@/lib/chords';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 
 // Section header: [Chorus], [Verse], [Bridge], etc.
@@ -115,8 +115,9 @@ export default function SongView() {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
                 {chords.map((chord, i) => {
-                  const notes = CHORD_MAP[chord] || [];
-                  const hasMapping = notes.length > 0;
+                  const notes = CHORD_MAP[chord] || [];           // plain names for label
+                  const keyboardNotes = chordToKeyboardNotes(chord); // octave-qualified for keyboard
+                  const hasMapping = keyboardNotes.length > 0;
                   return (
                     <div
                       key={chord}
@@ -131,7 +132,7 @@ export default function SongView() {
                       </div>
                       <div className="p-3 flex-1">
                         {hasMapping ? (
-                          <PianoKeyboard activeNotes={notes} compact />
+                          <PianoKeyboard activeNotes={keyboardNotes} compact />
                         ) : (
                           <div className="h-28 flex items-center justify-center text-xs text-muted-foreground italic">
                             Not in dictionary

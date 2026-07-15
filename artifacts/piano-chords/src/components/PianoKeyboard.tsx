@@ -2,60 +2,35 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface PianoKeyboardProps {
+  /** Octave-qualified note strings, e.g. ["G3", "B3", "D4"] */
   activeNotes: string[];
   compact?: boolean;
 }
 
-// All keys in keyboard order (C3–C4), lowest to highest.
-// Each key has a unique index so we can highlight exactly one occurrence per note.
+// Keyboard spans C3–G4 (12 white keys) — wide enough for any root-position triad.
 const WHITE_KEYS = [
-  { note: 'C' },
-  { note: 'D' },
-  { note: 'E' },
-  { note: 'F' },
-  { note: 'G' },
-  { note: 'A' },
-  { note: 'B' },
-  { note: 'C' }, // high C — only lit if no lower C consumed the note
-];
+  'C3','D3','E3','F3','G3','A3','B3',
+  'C4','D4','E4','F4','G4',
+] as const;
 
+// position = index of the white key immediately to the right of this black key
 const BLACK_KEYS = [
-  { note: 'C#', position: 1 },
-  { note: 'D#', position: 2 },
-  { note: 'F#', position: 4 },
-  { note: 'G#', position: 5 },
-  { note: 'A#', position: 6 },
-];
+  { note: 'C#3', position: 1  },
+  { note: 'D#3', position: 2  },
+  { note: 'F#3', position: 4  },
+  { note: 'G#3', position: 5  },
+  { note: 'A#3', position: 6  },
+  { note: 'C#4', position: 8  },
+  { note: 'D#4', position: 9  },
+  { note: 'F#4', position: 11 },
+] as const;
 
-/** Pre-compute which key indices should be lit, consuming each note name exactly once. */
-function computeActiveIndices(activeNotes: string[]): { white: Set<number>; black: Set<number> } {
-  const pool = [...activeNotes]; // mutable copy
-  const white = new Set<number>();
-  const black = new Set<number>();
-
-  WHITE_KEYS.forEach((key, i) => {
-    const idx = pool.indexOf(key.note);
-    if (idx !== -1) {
-      white.add(i);
-      pool.splice(idx, 1);
-    }
-  });
-
-  // Reset pool for black keys (independent scan)
-  const pool2 = [...activeNotes];
-  BLACK_KEYS.forEach((key, i) => {
-    const idx = pool2.indexOf(key.note);
-    if (idx !== -1) {
-      black.add(i);
-      pool2.splice(idx, 1);
-    }
-  });
-
-  return { white, black };
-}
+const N = WHITE_KEYS.length; // 12
+const WHITE_PCT = 100 / N;         // width of one white key as %
+const BLACK_PCT = WHITE_PCT * 0.57; // black key width ≈ 57% of white
 
 export function PianoKeyboard({ activeNotes, compact = false }: PianoKeyboardProps) {
-  const { white: activeWhite, black: activeBlack } = computeActiveIndices(activeNotes);
+  const active = new Set(activeNotes);
 
   return (
     <div className={cn(
@@ -63,66 +38,71 @@ export function PianoKeyboard({ activeNotes, compact = false }: PianoKeyboardPro
       compact ? "h-28" : "h-48 md:h-64 max-w-3xl mx-auto"
     )}>
       <div className="relative w-full h-full flex rounded-b-lg overflow-hidden">
-        {WHITE_KEYS.map((key, i) => {
-          const active = activeWhite.has(i);
+
+        {/* White keys */}
+        {WHITE_KEYS.map((note, i) => {
+          const isActive = active.has(note);
           return (
             <div
-              key={`white-${i}`}
+              key={`w-${i}`}
+              style={{
+                width: `${WHITE_PCT}%`,
+                transformOrigin: 'top',
+                transform: isActive ? 'rotateX(2deg) translateY(2px)' : 'none',
+              }}
               className={cn(
-                "relative h-full border border-black/20 rounded-b-md transition-all duration-150 ease-out flex items-end justify-center w-[12.5%]",
+                "relative h-full border border-black/20 rounded-b-md transition-all duration-150 ease-out flex items-end justify-center",
                 compact ? "pb-1" : "pb-4",
-                active
-                  ? "bg-amber-400 shadow-[inset_0_-4px_12px_rgba(217,119,6,0.6)] text-amber-900 translate-y-1"
+                isActive
+                  ? "bg-amber-400 shadow-[inset_0_-4px_12px_rgba(217,119,6,0.6)] text-amber-900"
                   : "bg-[#fffff8] shadow-[inset_0_-4px_8px_rgba(0,0,0,0.1)] text-black/40 hover:bg-[#f4f4ea]"
               )}
-              style={{
-                transformOrigin: 'top',
-                transform: active ? 'rotateX(2deg) translateY(2px)' : 'none'
-              }}
             >
               <span className={cn(
                 "font-medium transition-opacity duration-300",
-                compact ? "text-[9px]" : "text-sm",
-                active ? "opacity-100" : "opacity-0"
+                compact ? "text-[8px]" : "text-sm",
+                isActive ? "opacity-100" : "opacity-0"
               )}>
-                {key.note}
+                {note.replace(/\d/, '')}
               </span>
             </div>
           );
         })}
 
-        {BLACK_KEYS.map((key, i) => {
-          const active = activeBlack.has(i);
-          const leftPos = `calc((100% / 8) * ${key.position} - (100% / 14) / 2)`;
+        {/* Black keys */}
+        {BLACK_KEYS.map((key) => {
+          const isActive = active.has(key.note);
           return (
             <div
-              key={`black-${i}`}
+              key={key.note}
+              style={{
+                left: `${WHITE_PCT * key.position - BLACK_PCT / 2}%`,
+                width: `${BLACK_PCT}%`,
+                transformOrigin: 'top',
+                transform: isActive ? 'rotateX(2deg) translateY(2px)' : 'none',
+              }}
               className={cn(
-                "absolute top-0 h-[65%] w-[calc(100%/14)] rounded-b-md z-10 transition-all duration-150 ease-out border-x border-b border-black flex items-end justify-center",
+                "absolute top-0 h-[65%] z-10 transition-all duration-150 ease-out rounded-b-md border-x border-b border-black flex items-end justify-center",
                 compact ? "pb-1" : "pb-3",
-                active
-                  ? "bg-amber-500 shadow-[inset_0_-2px_8px_rgba(251,191,36,0.6),0_4px_8px_rgba(0,0,0,0.5)] text-amber-950 translate-y-1"
+                isActive
+                  ? "bg-amber-500 shadow-[inset_0_-2px_8px_rgba(251,191,36,0.6),0_4px_8px_rgba(0,0,0,0.5)] text-amber-950"
                   : "bg-[#18181b] shadow-[inset_-2px_-4px_6px_rgba(255,255,255,0.1),0_4px_8px_rgba(0,0,0,0.5)] text-white/40 hover:bg-[#27272a]"
               )}
-              style={{
-                left: leftPos,
-                transformOrigin: 'top',
-                transform: active ? 'rotateX(2deg) translateY(2px)' : 'none'
-              }}
             >
               <span className={cn(
-                "font-medium transition-opacity duration-300",
-                compact ? "text-[7px]" : "text-xs",
-                active ? "opacity-100" : "opacity-0"
+                "font-medium transition-opacity duration-300 text-center leading-tight",
+                compact ? "text-[6px]" : "text-[9px]",
+                isActive ? "opacity-100" : "opacity-0"
               )}>
-                {key.note}
+                {key.note.replace(/\d/, '').replace('#', '♯')}
               </span>
             </div>
           );
         })}
       </div>
+
       {/* Decorative top wooden strip */}
-      <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-[#2a1b14] to-[#1a1512] shadow-md z-20"></div>
+      <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-[#2a1b14] to-[#1a1512] shadow-md z-20" />
     </div>
   );
 }
