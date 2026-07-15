@@ -10,10 +10,10 @@ const SECTION_RE = /^\[.+\]$/;
 
 function LyricsLine({ line }: { line: string }) {
   if (SECTION_RE.test(line.trim())) {
-    // Two text sizes larger than base (text-sm → text-xl), bold
+    const label = line.trim().slice(1, -1); // strip the [ ]
     return (
       <span className="block text-xl font-bold text-amber-100 mt-4 mb-1 not-italic">
-        {line}
+        {label}
       </span>
     );
   }
