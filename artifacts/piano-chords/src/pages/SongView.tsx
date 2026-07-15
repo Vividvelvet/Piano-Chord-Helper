@@ -5,9 +5,20 @@ import { ArrowLeft, Trash2, Loader2, Music } from 'lucide-react';
 import { parseChords, CHORD_MAP, isChordToken } from '@/lib/chords';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 
-// Renders a line of chord-sheet text, highlighting chord tokens in amber
-function ChordLine({ line }: { line: string }) {
-  // Split preserving spaces so the layout (spacing between chords/lyrics) is kept
+// Section header: [Chorus], [Verse], [Bridge], etc.
+const SECTION_RE = /^\[.+\]$/;
+
+function LyricsLine({ line }: { line: string }) {
+  if (SECTION_RE.test(line.trim())) {
+    // Two text sizes larger than base (text-sm → text-xl), bold
+    return (
+      <span className="block text-xl font-bold text-amber-100 mt-4 mb-1 not-italic">
+        {line}
+      </span>
+    );
+  }
+
+  // Chord line or lyric line — highlight chord tokens in amber
   const tokens = line.split(/(\s+)/);
   return (
     <span>
@@ -142,7 +153,7 @@ export default function SongView() {
                 <pre className="font-mono text-sm leading-7 text-amber-50/80 whitespace-pre">
                   {lyricsLines.map((line, i) => (
                     <div key={i}>
-                      {line === '' ? '\n' : <ChordLine line={line} />}
+                      {line === '' ? '\u00a0' : <LyricsLine line={line} />}
                     </div>
                   ))}
                 </pre>
