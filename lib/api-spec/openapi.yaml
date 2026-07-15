@@ -144,7 +144,10 @@ components:
           type: ["string", "null"]
         chordText:
           type: string
-          description: Raw chord progression text pasted by the user (e.g. "Am C G F")
+          description: Space-separated selected chord names (e.g. "Am F C G")
+        lyricsText:
+          type: ["string", "null"]
+          description: The original raw chord/lyric sheet the user pasted in
         createdAt:
           type: string
           format: date-time
@@ -161,6 +164,8 @@ components:
         chordText:
           type: string
           minLength: 1
+        lyricsText:
+          type: string
 
     SongUpdate:
       type: object
@@ -173,3 +178,5 @@ components:
         chordText:
           type: string
           minLength: 1
+        lyricsText:
+          type: string

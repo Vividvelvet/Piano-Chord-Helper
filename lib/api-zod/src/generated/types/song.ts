@@ -11,7 +11,12 @@ export interface Song {
   title: string;
   /** @nullable */
   artist?: string | null;
-  /** Raw chord progression text pasted by the user (e.g. "Am C G F") */
+  /** Space-separated selected chord names (e.g. "Am F C G") */
   chordText: string;
+  /**
+     * The original raw chord/lyric sheet the user pasted in
+     * @nullable
+     */
+  lyricsText?: string | null;
   createdAt: Date;
 }

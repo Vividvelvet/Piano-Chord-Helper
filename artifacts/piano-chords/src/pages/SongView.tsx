@@ -2,8 +2,25 @@ import { useRoute, Link, useLocation } from 'wouter';
 import { useGetSong, useDeleteSong, getListSongsQueryKey, getGetSongQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Trash2, Loader2, Music } from 'lucide-react';
-import { parseChords, CHORD_MAP } from '@/lib/chords';
+import { parseChords, CHORD_MAP, isChordToken } from '@/lib/chords';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
+
+// Renders a line of chord-sheet text, highlighting chord tokens in amber
+function ChordLine({ line }: { line: string }) {
+  // Split preserving spaces so the layout (spacing between chords/lyrics) is kept
+  const tokens = line.split(/(\s+)/);
+  return (
+    <span>
+      {tokens.map((tok, i) =>
+        isChordToken(tok) ? (
+          <span key={i} className="text-primary font-semibold">{tok}</span>
+        ) : (
+          <span key={i}>{tok}</span>
+        )
+      )}
+    </span>
+  );
+}
 
 export default function SongView() {
   const [, params] = useRoute('/songs/:id');
@@ -49,6 +66,7 @@ export default function SongView() {
   }
 
   const chords = parseChords(song.chordText);
+  const lyricsLines = song.lyricsText ? song.lyricsText.split('\n') : null;
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground font-sans">
@@ -75,47 +93,64 @@ export default function SongView() {
           {song.artist && <p className="text-lg text-muted-foreground font-light">{song.artist}</p>}
         </div>
 
-        {/* All chord keyboards */}
-        {chords.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground italic">
-            No recognized chords found in this piece.
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-            {chords.map((chord, i) => {
-              const notes = CHORD_MAP[chord] || [];
-              const hasMapping = notes.length > 0;
-              return (
-                <div
-                  key={chord}
-                  className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in fill-mode-both"
-                  style={{ animationDelay: `${i * 40}ms` }}
-                >
-                  {/* Chord name header */}
-                  <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
-                    <span className="text-xl font-semibold text-amber-50 tracking-wide">{chord}</span>
-                    {hasMapping && (
-                      <span className="text-xs text-muted-foreground font-mono">
-                        {notes.join(' ')}
-                      </span>
-                    )}
-                  </div>
+        {/* Two-column layout on wide screens: lyrics left, chords right */}
+        <div className="flex flex-col xl:flex-row gap-10">
 
-                  {/* Piano keyboard */}
-                  <div className="p-3 flex-1">
-                    {hasMapping ? (
-                      <PianoKeyboard activeNotes={notes} compact />
-                    ) : (
-                      <div className="h-28 flex items-center justify-center text-xs text-muted-foreground italic">
-                        Chord not in dictionary
+          {/* Chord keyboards grid */}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-4">Chords</h2>
+            {chords.length === 0 ? (
+              <p className="text-muted-foreground italic">No recognised chords found.</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+                {chords.map((chord, i) => {
+                  const notes = CHORD_MAP[chord] || [];
+                  const hasMapping = notes.length > 0;
+                  return (
+                    <div
+                      key={chord}
+                      className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in fill-mode-both"
+                      style={{ animationDelay: `${i * 40}ms` }}
+                    >
+                      <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+                        <span className="text-xl font-semibold text-amber-50 tracking-wide">{chord}</span>
+                        {hasMapping && (
+                          <span className="text-xs text-muted-foreground font-mono">{notes.join(' ')}</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                      <div className="p-3 flex-1">
+                        {hasMapping ? (
+                          <PianoKeyboard activeNotes={notes} compact />
+                        ) : (
+                          <div className="h-28 flex items-center justify-center text-xs text-muted-foreground italic">
+                            Not in dictionary
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Lyrics & chords sheet */}
+          {lyricsLines && (
+            <div className="xl:w-96 shrink-0">
+              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-4">Chords &amp; Lyrics</h2>
+              <div className="bg-card border border-border rounded-2xl p-5 overflow-x-auto">
+                <pre className="font-mono text-sm leading-7 text-amber-50/80 whitespace-pre">
+                  {lyricsLines.map((line, i) => (
+                    <div key={i}>
+                      {line === '' ? '\n' : <ChordLine line={line} />}
+                    </div>
+                  ))}
+                </pre>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );

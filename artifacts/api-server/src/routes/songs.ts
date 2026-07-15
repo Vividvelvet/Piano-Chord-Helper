@@ -30,7 +30,8 @@ router.post("/songs", async (req, res): Promise<void> => {
     return;
   }
 
-  const [song] = await db.insert(songsTable).values(parsed.data).returning();
+  const { title, artist, chordText, lyricsText } = parsed.data;
+  const [song] = await db.insert(songsTable).values({ title, artist, chordText, lyricsText }).returning();
   res.status(201).json(CreateSongResponse.parse(song));
 });
 

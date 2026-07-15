@@ -24,7 +24,8 @@ export const ListSongsResponseItem = zod.object({
   "id": zod.number(),
   "title": zod.string(),
   "artist": zod.string().nullish(),
-  "chordText": zod.string().describe('Raw chord progression text pasted by the user (e.g. \"Am C G F\")'),
+  "chordText": zod.string().describe('Space-separated selected chord names (e.g. \"Am F C G\")'),
+  "lyricsText": zod.string().nullish().describe('The original raw chord\/lyric sheet the user pasted in'),
   "createdAt": zod.coerce.date()
 })
 export const ListSongsResponse = zod.array(ListSongsResponseItem)
@@ -40,14 +41,16 @@ export const ListSongsResponse = zod.array(ListSongsResponseItem)
 export const CreateSongBody = zod.object({
   "title": zod.string().min(1),
   "artist": zod.string().optional(),
-  "chordText": zod.string().min(1)
+  "chordText": zod.string().min(1),
+  "lyricsText": zod.string().optional()
 })
 
 export const CreateSongResponse = zod.object({
   "id": zod.number(),
   "title": zod.string(),
   "artist": zod.string().nullish(),
-  "chordText": zod.string().describe('Raw chord progression text pasted by the user (e.g. \"Am C G F\")'),
+  "chordText": zod.string().describe('Space-separated selected chord names (e.g. \"Am F C G\")'),
+  "lyricsText": zod.string().nullish().describe('The original raw chord\/lyric sheet the user pasted in'),
   "createdAt": zod.coerce.date()
 })
 
@@ -63,7 +66,8 @@ export const GetSongResponse = zod.object({
   "id": zod.number(),
   "title": zod.string(),
   "artist": zod.string().nullish(),
-  "chordText": zod.string().describe('Raw chord progression text pasted by the user (e.g. \"Am C G F\")'),
+  "chordText": zod.string().describe('Space-separated selected chord names (e.g. \"Am F C G\")'),
+  "lyricsText": zod.string().nullish().describe('The original raw chord\/lyric sheet the user pasted in'),
   "createdAt": zod.coerce.date()
 })
 
@@ -82,14 +86,16 @@ export const UpdateSongParams = zod.object({
 export const UpdateSongBody = zod.object({
   "title": zod.string().min(1).optional(),
   "artist": zod.string().optional(),
-  "chordText": zod.string().min(1).optional()
+  "chordText": zod.string().min(1).optional(),
+  "lyricsText": zod.string().optional()
 })
 
 export const UpdateSongResponse = zod.object({
   "id": zod.number(),
   "title": zod.string(),
   "artist": zod.string().nullish(),
-  "chordText": zod.string().describe('Raw chord progression text pasted by the user (e.g. \"Am C G F\")'),
+  "chordText": zod.string().describe('Space-separated selected chord names (e.g. \"Am F C G\")'),
+  "lyricsText": zod.string().nullish().describe('The original raw chord\/lyric sheet the user pasted in'),
   "createdAt": zod.coerce.date()
 })
 

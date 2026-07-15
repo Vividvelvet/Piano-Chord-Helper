@@ -16,7 +16,6 @@ export default function AddSong() {
 
   const createSong = useCreateSong();
 
-  // Re-parse whenever raw text changes; auto-select all detected chords
   useEffect(() => {
     const detected = parseChords(rawText);
     setSelectedChords(new Set(detected));
@@ -27,11 +26,8 @@ export default function AddSong() {
   const toggleChord = (chord: string) => {
     setSelectedChords(prev => {
       const next = new Set(prev);
-      if (next.has(chord)) {
-        next.delete(chord);
-      } else {
-        next.add(chord);
-      }
+      if (next.has(chord)) next.delete(chord);
+      else next.add(chord);
       return next;
     });
   };
@@ -39,9 +35,8 @@ export default function AddSong() {
   const handleSave = () => {
     const chordText = detectedChords.filter(c => selectedChords.has(c)).join(' ');
     if (!title.trim() || !chordText) return;
-
     createSong.mutate(
-      { data: { title, artist, chordText } },
+      { data: { title, artist, chordText, lyricsText: rawText } },
       {
         onSuccess: (song) => {
           queryClient.invalidateQueries({ queryKey: getListSongsQueryKey() });
@@ -109,19 +104,9 @@ export default function AddSong() {
                   Detected Chords — tap to include or exclude
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <button
-                    onClick={() => setSelectedChords(new Set(detectedChords))}
-                    className="text-primary hover:text-primary/80 transition-colors"
-                  >
-                    Select all
-                  </button>
+                  <button onClick={() => setSelectedChords(new Set(detectedChords))} className="text-primary hover:text-primary/80 transition-colors">Select all</button>
                   <span className="text-border">|</span>
-                  <button
-                    onClick={() => setSelectedChords(new Set())}
-                    className="text-muted-foreground hover:text-amber-50/60 transition-colors"
-                  >
-                    Clear
-                  </button>
+                  <button onClick={() => setSelectedChords(new Set())} className="text-muted-foreground hover:text-amber-50/60 transition-colors">Clear</button>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">

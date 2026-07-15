@@ -12,4 +12,5 @@ export interface SongInput {
   artist?: string;
   /** @minLength 1 */
   chordText: string;
+  lyricsText?: string;
 }

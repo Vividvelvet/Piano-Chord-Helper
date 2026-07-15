@@ -7,6 +7,7 @@ export const songsTable = pgTable("songs", {
   title: text("title").notNull(),
   artist: text("artist"),
   chordText: text("chord_text").notNull(),
+  lyricsText: text("lyrics_text"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
