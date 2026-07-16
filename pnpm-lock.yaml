@@ -404,6 +404,10 @@ importers:
         version: 3.25.76
 
   artifacts/piano-chords:
+    dependencies:
+      '@fontsource/bitter':
+        specifier: ^5.2.10
+        version: 5.2.10
     devDependencies:
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -767,6 +771,9 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@fontsource/bitter@5.2.10':
+    resolution: {integrity: sha512-oqQgWAp+lgoGX7iFbVSbTkKyz0k8EK8+bLdUKDTqGTjW0HqrCue70v4jwbZvyNV/3DZol/b/L/WpdXfuQXKBUg==}
 
   '@gerrit0/mini-shiki@3.23.0':
     resolution: {integrity: sha512-bEMORlG0cqdjVyCEuU0cDQbORWX+kYCeo0kV1lbxF5bt4r7SID2l9bqsxJEM0zndaxpOUT7riCyIVEuqq/Ynxg==}
@@ -3240,6 +3247,8 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@floating-ui/utils@0.2.12': {}
+
+  '@fontsource/bitter@5.2.10': {}
 
   '@gerrit0/mini-shiki@3.23.0':
     dependencies:
