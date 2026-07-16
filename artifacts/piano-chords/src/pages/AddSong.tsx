@@ -3,6 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { useCreateSong, getListSongsQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { parseChords } from '@/lib/chords';
 import { cn } from '@/lib/utils';
 
@@ -52,10 +53,13 @@ export default function AddSong() {
   return (
     <div className="min-h-[100dvh] bg-background text-foreground p-6 md:p-12 font-sans">
       <div className="max-w-3xl mx-auto space-y-8">
-        <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-title transition-colors gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Library</span>
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-title transition-colors gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Library</span>
+          </Link>
+          <ThemeToggle />
+        </div>
 
         <header>
           <h1 className="text-4xl font-serif text-title tracking-tight mb-2">New Piece</h1>

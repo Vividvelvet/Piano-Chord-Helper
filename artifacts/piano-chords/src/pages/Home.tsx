@@ -2,6 +2,7 @@ import { Link } from 'wouter';
 import { useListSongs } from '@workspace/api-client-react';
 import { Plus, Music } from 'lucide-react';
 import { parseChords } from '@/lib/chords';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Home() {
   const { data: songs, isLoading } = useListSongs();
@@ -14,10 +15,13 @@ export default function Home() {
             <h1 className="text-4xl md:text-5xl font-serif text-title tracking-tight">Library</h1>
             <p className="text-muted-foreground text-sm md:text-base font-light">Your personal collection of practice pieces.</p>
           </div>
-          <Link href="/songs/new" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 gap-2">
-            <Plus className="w-4 h-4" />
-            <span>Add Piece</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link href="/songs/new" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 gap-2">
+              <Plus className="w-4 h-4" />
+              <span>Add Piece</span>
+            </Link>
+          </div>
         </header>
 
         {isLoading ? (

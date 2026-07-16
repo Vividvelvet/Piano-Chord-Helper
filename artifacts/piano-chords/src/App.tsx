@@ -32,7 +32,6 @@ function App() {
           <Router />
         </WouterRouter>
         <Toaster />
-        <ThemeToggle />
       </TooltipProvider>
     </QueryClientProvider>
   );

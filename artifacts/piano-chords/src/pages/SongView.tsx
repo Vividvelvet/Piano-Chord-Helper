@@ -3,6 +3,7 @@ import { useRoute, Link, useLocation } from 'wouter';
 import { useGetSong, useDeleteSong, getListSongsQueryKey, getGetSongQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Trash2, Pencil, Loader2, Music } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { parseChords, chordNotes, isChordToken, chordToKeyboardNotes } from '@/lib/chords';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { cn } from '@/lib/utils';
@@ -105,6 +106,7 @@ export default function SongView() {
             <span>Library</span>
           </Link>
           <div className="flex items-center gap-1">
+            <ThemeToggle />
             <Link
               href={`/songs/${id}/edit`}
               className="text-muted-foreground hover:text-title transition-colors p-2 rounded-md hover:bg-foreground/5"
