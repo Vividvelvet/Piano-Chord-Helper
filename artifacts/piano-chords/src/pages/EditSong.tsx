@@ -3,7 +3,7 @@ import { useRoute, useLocation, Link } from 'wouter';
 import { useGetSong, useUpdateSong, getListSongsQueryKey, getGetSongQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { parseChords } from '@/lib/chords';
+import { parseChords, upperChord } from '@/lib/chords';
 import { cn } from '@/lib/utils';
 
 export default function EditSong() {
@@ -27,9 +27,24 @@ export default function EditSong() {
     if (song && !initialised) {
       setTitle(song.title);
       setArtist(song.artist ?? '');
-      setRawText(song.lyricsText ?? song.chordText ?? '');
-      // Pre-select only the chords that were saved
-      setSelectedChords(new Set(song.chordText.split(/\s+/).filter(Boolean)));
+      const text = song.lyricsText ?? song.chordText ?? '';
+      setRawText(text);
+
+      // Build the saved chord set from chordText
+      const savedChords = new Set(song.chordText.split(/\s+/).filter(Boolean));
+
+      // Re-detect from the full lyrics text. For each detected chord, pre-select
+      // it if either the full name (e.g. "Dsus2/A") or its upper chord ("Dsus2")
+      // is in the saved set. This upgrades bare chords to their slash variants
+      // when the song was saved before slash chord support was added.
+      const detected = parseChords(text);
+      const initial  = new Set(
+        detected.filter(c => savedChords.has(c) || savedChords.has(upperChord(c)))
+      );
+      // Also keep any saved chords that weren't re-detected (edge cases)
+      savedChords.forEach(c => { if (!initial.has(c)) initial.add(c); });
+
+      setSelectedChords(initial);
       setInitialised(true);
     }
   }, [song, initialised]);
