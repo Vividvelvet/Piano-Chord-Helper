@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 import Home from './pages/Home';
 import AddSong from './pages/AddSong';
@@ -31,6 +32,7 @@ function App() {
           <Router />
         </WouterRouter>
         <Toaster />
+        <ThemeToggle />
       </TooltipProvider>
     </QueryClientProvider>
   );

@@ -10,7 +10,7 @@ export default function NotFound() {
             <Music className="w-8 h-8 text-primary" />
           </div>
         </div>
-        <h1 className="text-3xl md:text-4xl font-serif text-amber-50 mb-3 tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-serif text-title mb-3 tracking-tight">
           Page Not Found
         </h1>
         <p className="text-muted-foreground mb-8">

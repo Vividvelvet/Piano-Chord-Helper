@@ -7,7 +7,6 @@ import { parseChords, chordNotes, isChordToken, chordToKeyboardNotes } from '@/l
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { cn } from '@/lib/utils';
 
-// Section header: [Chorus], [Verse], [Bridge], etc.
 const SECTION_RE = /^\[.+\]$/;
 
 interface LyricsLineProps {
@@ -20,7 +19,7 @@ function LyricsLine({ line, onChordEnter, onChordLeave }: LyricsLineProps) {
   if (SECTION_RE.test(line.trim())) {
     const label = line.trim().slice(1, -1);
     return (
-      <span className="block text-xl font-bold text-amber-100 mt-4 mb-1 not-italic">
+      <span className="block text-xl font-bold text-title mt-4 mb-1 not-italic">
         {label}
       </span>
     );
@@ -30,7 +29,6 @@ function LyricsLine({ line, onChordEnter, onChordLeave }: LyricsLineProps) {
   return (
     <span>
       {tokens.map((tok, i) => {
-        // Normalise so the hover key matches the chord card key exactly
         const normalised = parseChords(tok)[0];
         return normalised ? (
           <span
@@ -87,7 +85,7 @@ export default function SongView() {
     return (
       <div className="min-h-[100dvh] bg-background text-foreground flex flex-col items-center justify-center">
         <Music className="w-12 h-12 text-muted-foreground mb-4 opacity-50" />
-        <h2 className="text-2xl font-serif text-amber-50 mb-2">Piece not found</h2>
+        <h2 className="text-2xl font-serif text-title mb-2">Piece not found</h2>
         <Link href="/" className="text-primary hover:underline">Return to Library</Link>
       </div>
     );
@@ -102,14 +100,14 @@ export default function SongView() {
 
         {/* Header */}
         <div className="flex justify-between items-center mb-10">
-          <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-amber-50 transition-colors gap-2">
+          <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-title transition-colors gap-2">
             <ArrowLeft className="w-4 h-4" />
             <span>Library</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link
               href={`/songs/${id}/edit`}
-              className="text-muted-foreground hover:text-amber-50 transition-colors p-2 rounded-md hover:bg-white/5"
+              className="text-muted-foreground hover:text-title transition-colors p-2 rounded-md hover:bg-foreground/5"
               title="Edit song"
             >
               <Pencil className="w-4 h-4" />
@@ -126,7 +124,7 @@ export default function SongView() {
 
         {/* Song title */}
         <div className="mb-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif text-amber-50 tracking-tight mb-2">{song.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-serif text-title tracking-tight mb-2">{song.title}</h1>
           {song.artist && <p className="text-lg text-muted-foreground font-light">{song.artist}</p>}
         </div>
 
@@ -141,10 +139,10 @@ export default function SongView() {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
                 {chords.map((chord, i) => {
-                  const notes      = chordNotes(chord);
+                  const notes         = chordNotes(chord);
                   const keyboardNotes = chordToKeyboardNotes(chord);
-                  const hasMapping = keyboardNotes.length > 0;
-                  const isHovered  = hoveredChord === chord;
+                  const hasMapping    = keyboardNotes.length > 0;
+                  const isHovered     = hoveredChord === chord;
                   return (
                     <div
                       key={chord}
@@ -162,7 +160,7 @@ export default function SongView() {
                       )}>
                         <span className={cn(
                           "text-xl font-semibold tracking-wide transition-colors duration-150",
-                          isHovered ? "text-primary" : "text-amber-50"
+                          isHovered ? "text-primary" : "text-title"
                         )}>
                           {chord}
                         </span>
@@ -191,7 +189,7 @@ export default function SongView() {
             <div className="xl:w-96 shrink-0">
               <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-4">Chords &amp; Lyrics</h2>
               <div className="bg-card border border-border rounded-2xl p-5 overflow-x-auto">
-                <pre className="font-mono text-sm leading-7 text-amber-50/80 whitespace-pre">
+                <pre className="font-mono text-sm leading-7 text-foreground/80 whitespace-pre">
                   {lyricsLines.map((line, i) => (
                     <div key={i}>
                       {line === '' ? '\u00a0' : (
